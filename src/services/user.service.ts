@@ -30,6 +30,16 @@ export const UserService = {
         if (err) {
           return reject(err);
         }
+        const existingUserQuery = "SELECT id FROM users WHERE email = ?";
+        conn.query(existingUserQuery, [newUser.email], (err, result: any) => {
+          if (!err) {
+            if (result.length > 0) {
+              conn.release();
+              return reject("User with this email already exists.");
+            }
+          }
+        });
+
         const hashedPassword = await bcrypt.hash(newUser.password, 10);
 
         const sql =
